@@ -332,7 +332,7 @@ export function TooltipAuthoringOverlay({
       {/* Toolbar */}
       <div className="opencom-authoring-toolbar">
         <div className="opencom-authoring-toolbar-left">
-          <span className="opencom-authoring-logo">Opencom</span>
+          <span className="opencom-authoring-logo">Jeemcom</span>
           <span className="opencom-authoring-tour-name">
             {tooltip ? `Tooltip: ${tooltip.name}` : "Select Element for Tooltip"}
           </span>

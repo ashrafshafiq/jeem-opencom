@@ -20,6 +20,7 @@ type AIAgentKnowledgeSource = "articles" | "internalArticles" | "snippets";
 
 type AIAgentSettingsQueryResult = {
   enabled: boolean;
+  agentName?: string;
   model: string;
   confidenceThreshold: number;
   knowledgeSources: AIAgentKnowledgeSource[];
@@ -46,6 +47,7 @@ type AvailableModelsStatus = "idle" | "loading" | "loaded" | "error";
 type UpdateAIAgentSettingsArgs = {
   workspaceId: Id<"workspaces">;
   enabled?: boolean;
+  agentName?: string;
   model?: string;
   confidenceThreshold?: number;
   knowledgeSources?: AIAgentKnowledgeSource[];
@@ -58,6 +60,7 @@ type UpdateAIAgentSettingsArgs = {
 type SaveAIAgentSettingsArgs = {
   workspaceId: Id<"workspaces">;
   enabled: boolean;
+  agentName: string;
   model: string;
   confidenceThreshold: number;
   knowledgeSources: AIAgentKnowledgeSource[];
@@ -321,6 +324,7 @@ export function useAIAgentSectionConvex(workspaceId?: Id<"workspaces">) {
         await updateAIAgentSettings({
           workspaceId: settings.workspaceId,
           enabled: settings.enabled,
+          agentName: settings.agentName?.trim() || undefined,
           model: normalizedModel,
           confidenceThreshold: settings.confidenceThreshold,
           knowledgeSources: settings.knowledgeSources,

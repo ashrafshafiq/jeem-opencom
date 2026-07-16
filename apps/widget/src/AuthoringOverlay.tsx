@@ -421,7 +421,7 @@ export function AuthoringOverlay({ token, onExit }: AuthoringOverlayProps) {
       {/* Toolbar */}
       <div className="opencom-authoring-toolbar">
         <div className="opencom-authoring-toolbar-left">
-          <span className="opencom-authoring-logo">Opencom</span>
+          <span className="opencom-authoring-logo">Jeemcom</span>
           <span className="opencom-authoring-tour-name">{tour?.name}</span>
         </div>
         <div className="opencom-authoring-toolbar-center">

@@ -1,0 +1,27 @@
+# Keep the build context small and prevent host artifacts (esp. host-arch node_modules and
+# local env files) from leaking into the image. Source is bind-mounted at runtime anyway.
+.git
+**/node_modules
+**/.next
+**/dist
+**/build
+**/coverage
+**/.turbo
+**/.expo
+**/*.log
+
+# Local env files — never bake secrets into an image.
+.env
+**/.env.local
+**/.env.*.local
+**/.env.test
+
+# Editor / OS cruft
+.vscode
+.idea
+.DS_Store
+
+# Test / tooling output not needed for install
+playwright-report
+test-results
+scripts/screenshots

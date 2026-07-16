@@ -19,6 +19,7 @@ export function AIAgentSection({
     useAIAgentSectionConvex(workspaceId);
 
   const [enabled, setEnabled] = useState(false);
+  const [agentName, setAgentName] = useState("Aya");
   const [model, setModel] = useState("openai/gpt-5-nano");
   const [confidenceThreshold, setConfidenceThreshold] = useState(0.6);
   const [knowledgeSources, setKnowledgeSources] = useState<string[]>(["articles"]);
@@ -41,6 +42,7 @@ export function AIAgentSection({
   useEffect(() => {
     if (aiSettings) {
       setEnabled(aiSettings.enabled);
+      setAgentName(aiSettings.agentName ?? "Aya");
       setModel(aiSettings.model);
       setConfidenceThreshold(aiSettings.confidenceThreshold);
       setKnowledgeSources(aiSettings.knowledgeSources as string[]);
@@ -56,6 +58,7 @@ export function AIAgentSection({
     const nextModel = await saveSettings({
       workspaceId,
       enabled,
+      agentName,
       model,
       confidenceThreshold,
       knowledgeSources: knowledgeSources as ("articles" | "internalArticles" | "snippets")[],
@@ -138,6 +141,19 @@ export function AIAgentSection({
 
         {enabled && (
           <>
+            {/* Agent Name */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Agent Name</label>
+              <Input
+                value={agentName}
+                onChange={(e) => setAgentName(e.target.value)}
+                placeholder="Aya"
+              />
+              <p className="text-xs text-muted-foreground">
+                The name your AI agent uses in the chat widget and inbox.
+              </p>
+            </div>
+
             {/* Model Selection */}
             <div className="space-y-2">
               <label className="text-sm font-medium">AI Model</label>

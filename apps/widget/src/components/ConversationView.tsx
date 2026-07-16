@@ -485,6 +485,7 @@ export function ConversationView({
       <ConversationMessageList
         messages={messages}
         aiSettingsEnabled={Boolean(aiSettings?.enabled)}
+        agentName={aiSettings?.agentName}
         isAiMessage={isAiMessage}
         getAiResponseData={getAiResponseData}
         aiResponseFeedback={aiResponseFeedback}

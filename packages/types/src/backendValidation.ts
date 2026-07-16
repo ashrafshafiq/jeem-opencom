@@ -3,30 +3,70 @@ import type { DiscoveryResponse, BackendValidationResult } from "./backend";
 const DISCOVERY_REQUEST_TIMEOUT_MS = 10000;
 
 /**
+ * Loopback hosts (localhost / 127.0.0.1 / ::1) are treated as trusted local
+ * development backends: they are allowed over http:// (no public network exposure)
+ * and use port-based cloud/site mapping instead of Convex Cloud's domain convention.
+ * This mirrors the backend's own local-dev carve-out (see isLocalDevOrigin in
+ * packages/convex/convex/http.ts).
+ */
+function isLoopbackHostname(hostname: string): boolean {
+  return (
+    hostname === "localhost" ||
+    hostname === "127.0.0.1" ||
+    hostname === "::1" ||
+    hostname === "[::1]"
+  );
+}
+
+/**
  * Convert a Convex URL to the HTTP endpoint URL.
- * Convex Cloud URLs use .convex.cloud for the real-time API
- * but .convex.site for HTTP endpoints.
+ * Convex Cloud URLs use .convex.cloud for the real-time API but .convex.site for
+ * HTTP endpoints. Self-hosted backends (e.g. local Docker) instead serve HTTP actions
+ * on the site port, which is the cloud/API port + 1 (Convex default: 3210 -> 3211).
  */
 function getHttpEndpointUrl(url: string): string {
-  // Convert .convex.cloud to .convex.site for HTTP endpoints
-  return url.replace(/\.convex\.cloud$/, ".convex.site");
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname.endsWith(".convex.cloud")) {
+      return url.replace(/\.convex\.cloud$/, ".convex.site");
+    }
+    if (isLoopbackHostname(parsed.hostname) && parsed.port) {
+      parsed.port = String(Number.parseInt(parsed.port, 10) + 1);
+      return parsed.toString().replace(/\/$/, "");
+    }
+    return url;
+  } catch {
+    // Fall back to the Convex Cloud convention if the URL cannot be parsed.
+    return url.replace(/\.convex\.cloud$/, ".convex.site");
+  }
 }
 
 export async function validateBackendUrl(url: string): Promise<BackendValidationResult> {
   // Normalize URL
   let normalizedUrl = url.trim();
 
-  // Add https:// if no protocol specified
+  // Add a protocol if none was specified. Loopback hosts default to http:// (local
+  // self-hosted dev); everything else defaults to https://.
   if (!normalizedUrl.startsWith("http://") && !normalizedUrl.startsWith("https://")) {
-    normalizedUrl = `https://${normalizedUrl}`;
+    const hostToken = normalizedUrl.split("/")[0]?.split(":")[0] ?? "";
+    const defaultProtocol = isLoopbackHostname(hostToken) ? "http://" : "https://";
+    normalizedUrl = `${defaultProtocol}${normalizedUrl}`;
   }
 
-  // Reject HTTP URLs (require HTTPS)
+  // Reject HTTP URLs (require HTTPS) except for trusted loopback dev backends.
   if (normalizedUrl.startsWith("http://")) {
-    return {
-      valid: false,
-      error: "HTTPS is required for secure connections",
-    };
+    let isLoopback = false;
+    try {
+      isLoopback = isLoopbackHostname(new URL(normalizedUrl).hostname);
+    } catch {
+      isLoopback = false;
+    }
+    if (!isLoopback) {
+      return {
+        valid: false,
+        error: "HTTPS is required for secure connections",
+      };
+    }
   }
 
   // Remove trailing slash

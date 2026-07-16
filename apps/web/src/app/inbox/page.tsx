@@ -560,6 +560,7 @@ function InboxContent(): React.JSX.Element | null {
             <div className="h-full min-h-0 flex gap-4">
               <InboxThreadPane
                 isCompactViewport={isCompactViewport}
+                agentName={aiSettings?.agentName}
                 selectedConversationId={selectedConversationId}
                 selectedConversation={selectedConversation as InboxConversation | null}
                 messages={messages as InboxMessage[] | undefined}

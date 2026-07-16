@@ -212,7 +212,7 @@ function LoginForm() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl">Opencom</CardTitle>
+        <CardTitle className="text-2xl">Jeemcom</CardTitle>
         <CardDescription>Sign in to your account</CardDescription>
         <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground mt-2">
           <Server className="h-3 w-3" />

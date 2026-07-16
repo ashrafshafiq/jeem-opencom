@@ -35,6 +35,7 @@ import {
 
 interface InboxThreadPaneProps {
   isCompactViewport: boolean;
+  agentName?: string;
   selectedConversationId: Id<"conversations"> | null;
   selectedConversation: InboxConversation | null;
   messages: InboxMessage[] | undefined;
@@ -125,6 +126,7 @@ function getContentTypeBadgeClass(type: "article" | "internalArticle" | "snippet
 
 export function InboxThreadPane({
   isCompactViewport,
+  agentName = "Aya",
   selectedConversationId,
   selectedConversation,
   messages,
@@ -518,7 +520,7 @@ export function InboxThreadPane({
                       <span>
                         {message.channel === "email" && <Mail className="h-3 w-3 inline mr-1" />}
                         {message.senderType === "bot"
-                          ? "Bot"
+                          ? agentName
                           : message.senderType === "agent"
                             ? "You"
                             : "Visitor"}{" "}

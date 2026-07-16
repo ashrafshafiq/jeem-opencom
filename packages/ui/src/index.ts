@@ -10,4 +10,10 @@ export {
 export { Input, type InputProps } from "./components/input";
 export { Textarea, type TextareaProps } from "./components/textarea";
 export { cn } from "./lib/utils";
-export { BRAND_PRIMARY, BRAND_PRIMARY_DARK, BRAND_PRIMARY_RGB } from "./brand";
+export {
+  BRAND_NAME,
+  BRAND_TAGLINE,
+  BRAND_PRIMARY,
+  BRAND_PRIMARY_DARK,
+  BRAND_PRIMARY_RGB,
+} from "./brand";

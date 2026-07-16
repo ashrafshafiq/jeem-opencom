@@ -86,7 +86,7 @@ export function BackendSelector({ onConnected }: BackendSelectorProps) {
           <Server className="h-6 w-6 text-primary" />
         </div>
         <CardTitle className="text-xl">Connect to Backend</CardTitle>
-        <CardDescription>Enter your Opencom backend URL to get started</CardDescription>
+        <CardDescription>Enter your Jeemcom backend URL to get started</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleConnect} className="space-y-4">

@@ -1,738 +1,396 @@
-# Opencom
+# Jeemcom
 
-Open-source customer messaging platform - an alternative to Intercom.
+**Class reminders and support, powered by Aya.**
 
-## Quick Start
+Jeemcom is a self-hosted customer messaging platform for Jeem. It reminds subscribers when their
+classes are happening, and when they reply with questions, an AI agent named **Aya** answers them
+from your knowledge base — escalating to a live human whenever she can't confidently help.
 
-After cloning the repo, run one setup command:
-
-```bash
-./scripts/setup.sh
-```
-
-It installs dependencies, creates or reuses a Convex dev deployment, configures Convex Auth, creates or reuses a workspace, and writes the local `.env.local` files for the web, widget, mobile, landing, and SDK example apps.
-
-Prerequisites: Node.js 18+, PNPM 9+, and a Convex account.
-
-## Documentation
-
-### Quick Links
-
-| Document                                                                 | Description                                  |
-| ------------------------------------------------------------------------ | -------------------------------------------- |
-| [Contributing Guide](CONTRIBUTING.md)                                    | Development setup, code style, PR guidelines |
-| [OSS Documentation Hub](docs/open-source/README.md)                      | Canonical hub for all documentation          |
-| [Architecture & Repo Map](docs/open-source/architecture-and-repo-map.md) | System topology and code navigation          |
-| [Setup & Deploy](docs/open-source/setup-self-host-and-deploy.md)         | Self-hosting and deployment paths            |
-
-### Reference
-
-| Document                             | Description                                                    |
-| ------------------------------------ | -------------------------------------------------------------- |
-| [Data Model](docs/data-model.md)     | Complete database schema reference (50+ tables)                |
-| [Backend API](docs/api-reference.md) | Convex queries, mutations, and actions                         |
-| [Widget SDK](docs/widget-sdk.md)     | Embeddable widget client-side API                              |
-| [Mobile SDKs](docs/mobile-sdks.md)   | React Native, iOS (Swift), Android (Kotlin) SDK guides         |
-| [Security](docs/security.md)         | RBAC, HMAC identity verification, audit logs, webhook security |
-| [Testing](docs/testing.md)           | Unit, integration, E2E testing guide and CI pipeline           |
-| [Scripts](docs/scripts-reference.md) | Build, deploy, security, and utility script reference          |
-
-### Contributor Workflow
-
-| Document                                                               | Description                                       |
-| ---------------------------------------------------------------------- | ------------------------------------------------- |
-| [Testing & Verification](docs/open-source/testing-and-verification.md) | Verification workflows for contributors           |
-| [Security & Operations](docs/open-source/security-and-operations.md)   | Security boundaries and operational readiness     |
-| [Source-of-Truth Contract](docs/open-source/source-of-truth.md)        | Documentation ownership and update rules          |
-| [Feature Audit](docs/feature-audit.md)                                 | Comprehensive feature inventory and test coverage |
-
-## Features
-
-- **Chat** - Real-time messaging with customers via embeddable widget and email channel
-- **Product Tours** - Guide users through your product with WYSIWYG editor
-- **Knowledge Base** - Self-service help center with collections and articles
-- **Mobile Apps** - iOS and Android admin apps for on-the-go support with push notifications
-- **Campaigns** - Targeted outbound messaging with audience rules and trigger conditions
-- **Series** - Multi-step automated message sequences
-- **Surveys** - In-app surveys (NPS, rating, text, multiple choice) with analytics
-- **Tickets** - Issue tracking with priority, status, and agent assignment
-- **Segments** - Dynamic visitor grouping by attributes and behavior
-- **Reports** - Analytics dashboards for conversations, response times, and satisfaction
-- **AI Agent** - Automated responses using knowledge base with confidence scoring and human handoff
-- **Email Channel** - Send and receive emails as conversations via Resend integration
-- **Tooltips** - Contextual UI hints attached to page elements
-- **Outbound Messages** - Chat, post, and banner messages with trigger conditions
-- **Checklists** - Onboarding task lists for visitors
-- **Carousels** - Multi-screen promotional content for mobile SDKs
-- **CSAT** - Customer satisfaction ratings on conversations
-- **Identity Verification** - HMAC-based visitor identity verification
-- **Native SDKs** - React Native, iOS (Swift), and Android (Kotlin) SDKs
-
-## Tech Stack
-
-- **Frontend**: React, Next.js, Tailwind CSS, Shadcn UI
-- **Mobile**: React Native / Expo
-- **Backend**: Convex (serverless)
-- **Package Manager**: PNPM
-
-## Project Structure
-
-```
-opencom/
-├── apps/
-│   ├── web/              # Next.js dashboard for agents/admins
-│   ├── mobile/           # Expo app for iOS/Android (Admin App)
-│   ├── widget/           # Embeddable chat widget for websites (Vite)
-│   └── landing/          # Next.js marketing/landing page
-├── packages/
-│   ├── convex/           # Convex schema and functions (backend)
-│   ├── types/            # Shared TypeScript types
-│   ├── ui/               # Shared React components
-│   ├── sdk-core/         # Shared SDK business logic
-│   ├── react-native-sdk/ # React Native SDK for customer apps
-│   ├── ios-sdk/          # Native iOS SDK (Swift, SPM + CocoaPods)
-│   └── android-sdk/      # Native Android SDK (Kotlin)
-└── openspec/             # Reserved structure for future spec workflows
-```
-
-## App Naming Convention
-
-| App               | Purpose                                                   | Location                    | Users                      |
-| ----------------- | --------------------------------------------------------- | --------------------------- | -------------------------- |
-| **Admin App**     | Agent/teammate mobile app for responding to conversations | `apps/mobile`               | Support agents             |
-| **Mobile SDK**    | Embeddable SDK for customer mobile apps                   | `packages/react-native-sdk` | End users of customer apps |
-| **Web Widget**    | Embeddable widget for customer websites                   | `apps/widget`               | Website visitors           |
-| **Web Dashboard** | Admin dashboard for managing workspace                    | `apps/web`                  | Admins and agents          |
-| **Landing Page**  | Marketing website                                         | `apps/landing`              | Public visitors            |
-
-## Getting Started
-
-For the canonical setup paths (quickstart, self-host, env vars, deployment profiles), use:
-[`docs/open-source/setup-self-host-and-deploy.md`](docs/open-source/setup-self-host-and-deploy.md)
-
-### Quick Start (Self-Hosters)
-
-The fastest supported local setup path is the bootstrap script:
-
-```bash
-# Clone the repository
-git clone https://github.com/opencom-org/opencom.git
-cd opencom
-
-# Run the one-command setup
-./scripts/setup.sh
-```
-
-The setup script will:
-
-1. Check prerequisites (Node.js 18+, PNPM 9+)
-2. Install dependencies
-3. Configure or reuse a Convex dev deployment with the current CLI flow
-4. Validate the local password-auth bootstrap env contract
-5. Sign up or sign in through the repo's real Convex Auth password flow
-6. Generate/update all supported `.env.local` files without deleting unrelated keys
-7. Optionally offer to start the web dashboard and widget
-
-**Prerequisites:**
-
-- Node.js 18+
-- PNPM 9+ (`npm install -g pnpm`)
-- Convex account (free at [convex.dev](https://convex.dev))
-
-**Non-interactive mode (for CI/scripts):**
-
-```bash
-./scripts/setup.sh --email admin@example.com --password yourpassword --non-interactive --skip-dev
-```
-
-**Force a reconfigure or create a new workspace on rerun:**
-
-```bash
-./scripts/setup.sh --reconfigure
-./scripts/setup.sh --create-workspace --workspace "My New Workspace"
-```
-
-**Update environment files:**
-
-```bash
-./scripts/update-env.sh --url https://your-project.convex.cloud --workspace your_workspace_id
-```
-
-### Manual Setup (Escape Hatch)
-
-Prefer `./scripts/setup.sh`. Use this path only when you need to debug or control each setup step yourself:
-
-```bash
-# Install dependencies
-pnpm install
-
-# Configure the local Convex dev deployment
-pnpm --filter @opencom/convex exec convex dev --once
-
-# Configure Convex Auth JWT_PRIVATE_KEY/JWKS and SITE_URL
-pnpm --filter @opencom/convex exec convex auth add
-
-# Propagate the backend URL and workspace into the local app env files
-./scripts/update-env.sh --url https://your-project.convex.cloud --workspace your_workspace_id
-```
-
-You still need to create or reuse an admin/workspace yourself before `update-env.sh` can wire a real workspace ID into the local app env files.
-
-## Development
-
-```bash
-# Start all apps
-pnpm dev
-
-# Start specific app
-pnpm dev:web      # Next.js dashboard
-pnpm dev:mobile   # Expo mobile app
-pnpm dev:widget   # Widget dev server
-pnpm dev:convex   # Convex backend
-
-# Build all apps
-pnpm build
-
-# Lint
-pnpm lint
-
-# Format
-pnpm format
-```
-
-## Deployment Options
-
-Opencom supports multiple deployment configurations depending on your needs:
-
-| Option | Backend     | Web App     | Mobile Apps | Best For                       |
-| ------ | ----------- | ----------- | ----------- | ------------------------------ |
-| **A**  | Hosted      | Hosted      | Hosted      | Quick start, no infrastructure |
-| **B**  | Self-hosted | Hosted      | Hosted      | Data control with hosted apps  |
-| **C**  | Self-hosted | Self-hosted | Hosted      | Full web control               |
-| **D**  | Self-hosted | Self-hosted | Self-hosted | Complete self-hosting          |
-
-### Option A: Fully Hosted (Recommended for Getting Started)
-
-The simplest way to use Opencom:
-
-1. Sign up at [app.opencom.dev](https://app.opencom.dev)
-2. Create a workspace
-3. Copy the widget snippet from Settings → Widget Installation
-4. Add the snippet to your website
-
-No infrastructure setup required. Your data is stored on the default Opencom Convex instance.
-
-### Option B: Self-Hosted Backend with Hosted Apps
-
-Control your data while using the hosted web and mobile apps.
-
-**1. Create a Convex project:**
-
-```bash
-# Clone the repository
-git clone https://github.com/opencom-org/opencom.git
-cd opencom
-
-# Install dependencies
-pnpm install
-
-# Navigate to convex package
-cd packages/convex
-
-# Login to Convex
-npx convex login
-
-# Create and deploy your project
-npx convex dev --once
-
-# Configure Convex Auth
-pnpm exec convex auth add
-```
-
-**2. Configure optional integration environment variables in Convex Dashboard:**
-
-`pnpm exec convex auth add` configures the required Convex Auth `JWT_PRIVATE_KEY` and `JWKS` values. For optional email features, go to your Convex dashboard → Settings → Environment Variables and set:
-
-| Variable         | Required  | Description                                                              |
-| ---------------- | --------- | ------------------------------------------------------------------------ |
-| `RESEND_API_KEY` | For email | API key from [Resend](https://resend.com) for sending emails             |
-| `EMAIL_FROM`     | For email | Email address to send from (e.g., `YourCompany<noreply@yourdomain.com>`) |
-
-**3. Connect hosted apps to your backend:**
-
-- **Web**: Go to [app.opencom.dev](https://app.opencom.dev), enter your Convex URL on the login page
-- **Mobile**: Open the Opencom app, tap "Connect to Backend", enter your Convex URL
-
-Your Convex URL looks like: `https://your-project-123.convex.cloud`
-
-### Option C: Self-Hosted Backend + Web App
-
-Full control over backend and web dashboard.
-
-**1. Complete Option B steps first** (create and deploy Convex project)
-
-**2. Deploy the web app:**
-
-```bash
-# From repository root
-cd apps/web
-
-# Create .env.local
-cat > .env.local << EOF
-NEXT_PUBLIC_OPENCOM_DEFAULT_BACKEND_URL=https://your-project-123.convex.cloud
-EOF
-
-# Build
-pnpm build
-
-# Deploy to Vercel
-npx vercel --prod
-
-# Or deploy to Netlify
-npx netlify deploy --prod --dir=.next
-```
-
-**3. Configure your domain** (optional):
-
-Set up a custom domain in your hosting provider (Vercel/Netlify) dashboard.
-
-### Option D: Fully Self-Hosted (Including Mobile)
-
-Complete self-hosting including mobile apps.
-
-**1. Complete Options B and C steps first**
-
-**2. Build mobile apps:**
-
-```bash
-# From repository root
-cd apps/mobile
-
-# Create .env.local
-cat > .env.local << EOF
-EXPO_PUBLIC_OPENCOM_DEFAULT_BACKEND_URL=https://your-project-123.convex.cloud
-EOF
-
-# Build for iOS (requires macOS and Xcode)
-npx expo build:ios
-
-# Build for Android
-npx expo build:android
-```
-
-**3. Distribute apps:**
-
-- Submit to App Store / Play Store for public distribution
-- Use enterprise distribution for internal apps
-- Use Expo's internal distribution for testing
-
-> **Note**: App store submission and signing certificates are outside the scope of this guide.
+Jeemcom is built on [Opencom](https://github.com/opencom-org/opencom) (AGPL-3.0). See
+[License & attribution](#license--attribution).
 
 ---
 
-## Widget Installation
+## Contents
 
-After setting up your workspace, install the chat widget on your website.
+- [How it works](#how-it-works)
+- [Project status](#project-status)
+- [Quick start (Docker)](#quick-start-docker)
+- [Configuring Aya](#configuring-aya)
+- [Architecture](#architecture)
+- [Environment variables](#environment-variables)
+- [Widget installation](#widget-installation)
+- [Development](#development)
+- [Testing](#testing)
+- [Deploying to a VPS](#deploying-to-a-vps)
+- [Security](#security)
+- [Troubleshooting](#troubleshooting)
+- [License & attribution](#license--attribution)
 
-### Basic Installation
+---
 
-Add this snippet before the closing `</body>` tag:
+## How it works
 
-```html
-<script src="https://cdn.opencom.dev/widget.js"></script>
-<script>
-  OpencomWidget.init({
-    convexUrl: "YOUR_CONVEX_URL",
-    workspaceId: "YOUR_WORKSPACE_ID",
-  });
-</script>
+The intended end-to-end flow for Jeem subscribers:
+
+1. **Reminder** — a subscriber is reminded that their class is coming up, delivered over their
+   preferred channel (in-app chat, SMS, or WhatsApp).
+2. **Question** — if they reply ("can I reschedule?"), the reply lands in the Jeemcom inbox as a
+   normal conversation.
+3. **Aya answers** — Aya generates a reply grounded in your Help Center articles and snippets
+   (retrieval-augmented), scored with a confidence value.
+4. **Escalation** — if confidence is low, the subscriber asks for a human, or the topic is
+   sensitive (billing, refunds, complaints), Aya hands off: the conversation is reopened, flagged
+   `handoff`, and your team is notified in the inbox.
+
+Aya's behaviour — name, personality, confidence threshold, handoff message, knowledge sources, and
+model — is configured per workspace in **Settings → AI Agent**.
+
+## Project status
+
+| Capability                                     | Status         |
+| ---------------------------------------------- | -------------- |
+| Jeemcom branding                               | ✅ Done        |
+| Aya (named AI agent, persona, handoff)         | ✅ Done        |
+| Aya on OpenRouter                              | ✅ Done        |
+| Local Docker stack (self-hosted Convex)        | ✅ Done        |
+| In-app chat + email channels                   | ✅ Inherited   |
+| Twilio SMS + WhatsApp channels                 | 🚧 Planned     |
+| Automated class reminders                      | 🚧 Planned     |
+
+Chat and email work today. SMS/WhatsApp delivery and the class-reminder scheduler are the next two
+workstreams — the reminder flow above is the target design, not yet shipped.
+
+---
+
+## Quick start (Docker)
+
+This runs **everything** locally — a self-hosted Convex backend, the Convex dashboard, and all
+three web apps. **No Convex account required.** Source is bind-mounted, so code changes hot-reload.
+
+**Requirements:** Docker + Docker Compose v2, and `openssl`.
+
+```bash
+cp .env.docker.example .env
+echo "CONVEX_INSTANCE_SECRET=$(openssl rand -hex 32)" >> .env   # or edit .env by hand
+
+docker compose up --build
 ```
 
-Find your exact snippet with pre-filled values in **Settings → Widget Installation** after logging into your workspace.
+Startup is fully automated and ordered: the Convex backend becomes healthy → an admin key is
+derived from `CONVEX_INSTANCE_SECRET` → a one-shot job sets `JWT_PRIVATE_KEY`/`JWKS`/`SITE_URL`
+and pushes the `packages/convex` functions → the dev servers start.
 
-### Self-hosting the widget asset
+| Service          | URL                   | Notes                                    |
+| ---------------- | --------------------- | ---------------------------------------- |
+| Web dashboard    | http://localhost:3000 | Agent/admin app — **start here**         |
+| Landing site     | http://localhost:4000 | Marketing site                           |
+| Widget dev       | http://localhost:5173 | Vite widget dev server                   |
+| Convex dashboard | http://localhost:6791 | Data/functions browser                   |
+| Convex backend   | http://localhost:3210 | API/WebSocket (+ :3211 for HTTP actions) |
 
-If you prefer to serve the widget script from your own infrastructure instead of `cdn.opencom.dev`, keep using the local bundle path:
+### First run
+
+1. Open http://localhost:3000 and **sign up**. The first account becomes the admin.
+2. Create a workspace.
+3. Copy the workspace ID into `.env` as `OPENCOM_WORKSPACE_ID=...`, then
+   `docker compose up -d web landing widget` to power the widget/landing demos.
+4. Add an OpenRouter key to turn Aya on — see [Configuring Aya](#configuring-aya).
+
+### Useful commands
+
+```bash
+docker compose up -d                 # start detached
+docker compose logs -f web           # follow a service
+docker compose down                  # stop (data persists in the convex-data volume)
+docker compose down -v               # stop and WIPE all data
+docker compose down -v && docker compose up --build   # after changing any package.json/lockfile
+```
+
+---
+
+## Configuring Aya
+
+Aya runs through an **OpenAI-compatible** gateway. **OpenRouter is the recommended provider** —
+it lets you switch between OpenAI, Anthropic, and others with one key.
+
+1. Get an OpenRouter key (`sk-or-...`) from [openrouter.ai](https://openrouter.ai).
+2. Add it to `.env`:
+
+   ```bash
+   AI_GATEWAY_API_KEY=sk-or-your-key-here
+   ```
+
+   The base URL is auto-detected from the key prefix (`sk-or-` → OpenRouter, `vck_` → Vercel AI
+   Gateway, otherwise OpenAI). Set `AI_GATEWAY_BASE_URL` only to override.
+
+3. `docker compose up -d convex-deploy` to push the key to the deployment.
+4. In **Settings → AI Agent**: enable the agent, set the **model** to an OpenRouter id
+   (e.g. `openai/gpt-4o-mini` or `anthropic/claude-3.5-sonnet`), and confirm the **Agent name**
+   (defaults to `Aya`).
+
+### Aya's settings
+
+| Setting                | What it does                                                                |
+| ---------------------- | --------------------------------------------------------------------------- |
+| **Agent name**         | Display name in the widget and inbox, and her identity in the system prompt  |
+| **Personality**        | Free-text persona injected into the system prompt                            |
+| **Knowledge sources**  | Which content she answers from (articles, internal articles, snippets)       |
+| **Confidence threshold** | Below this, she hands off to a human instead of guessing                    |
+| **Handoff message**    | What she says when escalating                                                |
+| **Model**              | Provider/model id, e.g. `anthropic/claude-3.5-sonnet`                        |
+| **Working hours**      | Optional window for AI handling                                              |
+
+Aya only answers well if she has something to read — add content under **Articles** and
+**Snippets**. Every generation is logged with its confidence and sources for the inbox AI review
+panel and the AI report.
+
+---
+
+## Architecture
+
+- **Frontend**: React, Next.js, Tailwind CSS
+- **Widget**: Vite (embeddable IIFE bundle)
+- **Mobile**: React Native / Expo
+- **Backend**: [Convex](https://convex.dev) — schema, queries/mutations/actions, vector search
+- **Package manager**: PNPM workspaces
+
+```
+jeem-opencom/
+├── apps/
+│   ├── web/              # Next.js dashboard for agents/admins
+│   ├── mobile/           # Expo app for iOS/Android (Admin App)
+│   ├── widget/           # Embeddable chat widget (Vite)
+│   └── landing/          # Next.js marketing site
+├── packages/
+│   ├── convex/           # Convex schema + functions (the backend)
+│   ├── types/            # Shared TypeScript types
+│   ├── ui/               # Shared React components + brand constants
+│   ├── sdk-core/         # Shared SDK business logic
+│   ├── react-native-sdk/ # React Native SDK
+│   ├── ios-sdk/          # Native iOS SDK (Swift)
+│   └── android-sdk/      # Native Android SDK (Kotlin)
+├── scripts/docker/       # Container bootstrap (admin key, env, deploy)
+├── Dockerfile.dev
+└── docker-compose.yml
+```
+
+### A note on naming
+
+The **user-facing** brand is Jeemcom (`BRAND_NAME` in `packages/ui/src/brand.ts` is the source of
+truth). **Internal identifiers deliberately keep the original `opencom` name** to avoid breaking
+wiring and public embed contracts:
+
+- npm package names — `@opencom/web`, `@opencom/convex`, …
+- widget embed attributes — `data-opencom-convex-url`, `data-opencom-workspace-id`
+- the discovery endpoint — `/.well-known/opencom.json`
+- env var prefixes — `NEXT_PUBLIC_OPENCOM_*`, `OPENCOM_*`
+
+Renaming these is a breaking change for any existing embed or SDK consumer. Leave them alone
+unless you intend that.
+
+### Backend conventions
+
+The backend is Convex. Functions live in `packages/convex/convex/`, with the schema split by
+domain under `packages/convex/convex/schema/`. Use the new function syntax with explicit
+`args`/`returns` validators, and index-based queries (`withIndex`) rather than filters — every
+table is workspace-isolated by a `workspaceId` foreign key. To regenerate Convex's own AI coding
+guidelines, run `npx convex ai-files install`.
+
+---
+
+## Environment variables
+
+### Docker Compose (`.env` at repo root)
+
+| Variable                 | Required | Description                                                       |
+| ------------------------ | -------- | ----------------------------------------------------------------- |
+| `CONVEX_INSTANCE_SECRET` | Yes      | 32-byte hex seed for the instance + derived admin key. Keep stable |
+| `OPENCOM_WORKSPACE_ID`   | No       | Workspace for widget/landing demos                                |
+| `CONVEX_BACKEND_TAG`     | No       | Pin the Convex backend image (default `latest`)                   |
+| `AI_GATEWAY_API_KEY`     | For Aya  | OpenRouter (`sk-or-…`), Vercel AI Gateway (`vck_…`), or OpenAI key |
+| `AI_GATEWAY_BASE_URL`    | No       | Override the auto-detected gateway base URL                       |
+| `RESEND_API_KEY`         | For email | Transactional/campaign email                                     |
+| `EMAIL_FROM`             | For email | Sender identity, e.g. `Jeem <noreply@yourdomain.com>`            |
+
+Anything set here is pushed to the Convex deployment by the one-shot `convex-deploy` job (only if
+not already set).
+
+### Convex backend
+
+Set automatically by the Docker bootstrap; set manually in the Convex dashboard for cloud/VPS.
+
+| Variable                        | Required             | Description                                            |
+| ------------------------------- | -------------------- | ------------------------------------------------------ |
+| `JWT_PRIVATE_KEY` / `JWKS`      | Yes                  | Convex Auth session signing/verification keypair        |
+| `SITE_URL`                      | Yes                  | Web app URL for auth callbacks                          |
+| `AI_GATEWAY_API_KEY`            | For Aya              | Model provider credential                               |
+| `RESEND_API_KEY` / `EMAIL_FROM` | For email            | Email channel                                           |
+| `RESEND_WEBHOOK_SECRET`         | For email            | Verify inbound Resend webhook signatures                |
+| `ENFORCE_WEBHOOK_SIGNATURES`    | Recommended (`true`) | Fail closed on webhook validation                       |
+| `OPENCOM_PUBLIC_CORS_ORIGINS`   | Production           | Allowlist for the discovery endpoint (localhost in dev) |
+| `ALLOW_TEST_DATA` / `TEST_ADMIN_SECRET` | Testing      | Gate test-data mutations                                |
+
+### Apps
+
+| Variable                                  | App     | Description                       |
+| ----------------------------------------- | ------- | --------------------------------- |
+| `NEXT_PUBLIC_CONVEX_URL`                  | web/landing | Backend URL used by the browser |
+| `NEXT_PUBLIC_OPENCOM_DEFAULT_BACKEND_URL` | web     | Pre-filled backend on login       |
+| `VITE_CONVEX_URL` / `VITE_WORKSPACE_ID`   | widget  | Widget dev-server bootstrap       |
+| `EXPO_PUBLIC_OPENCOM_DEFAULT_BACKEND_URL` | mobile  | Pre-filled backend on login       |
+
+---
+
+## Widget installation
+
+Add the snippet before the closing `</body>` tag. Find your exact pre-filled snippet in
+**Settings → Widget Installation** (or the Onboarding page).
+
+```html
+<script
+  src="/opencom-widget.iife.js"
+  data-opencom-convex-url="YOUR_CONVEX_URL"
+  data-opencom-workspace-id="YOUR_WORKSPACE_ID"
+  data-opencom-track-page-views="true"
+></script>
+```
+
+Build and distribute the widget bundle to the apps' public dirs:
 
 ```bash
 bash scripts/build-widget-for-tests.sh
 ```
 
-This builds `apps/widget/dist/opencom-widget.iife.js` and copies it into:
+### Identifying subscribers
 
-- `apps/web/public/opencom-widget.iife.js`
-- `apps/landing/public/opencom-widget.iife.js`
-
-For your own hosted frontend, publish that file (or use `scripts/deploy-widget-cdn.sh` with your Cloudflare R2 bucket) and point your embed snippet or `NEXT_PUBLIC_WIDGET_URL` at your hosted script URL.
-
-### Identifying Users
-
-Link conversations to logged-in users:
+Link conversations to a known Jeem subscriber:
 
 ```javascript
 OpencomWidget.identify({
-  email: "user@example.com",
-  name: "John Doe",
-  userId: "user_123",
-  company: "Acme Inc",
-  customAttributes: {
-    plan: "pro",
-    signupDate: "2024-01-15",
-  },
+  email: "subscriber@example.com",
+  name: "Jane Doe",
+  userId: "jeem_user_123",
+  customAttributes: { plan: "pro" },
 });
 ```
 
-### Tracking Events
-
-Track custom events for analytics:
+### Tracking events
 
 ```javascript
-OpencomWidget.trackEvent("feature_used", {
-  featureName: "export",
-});
+OpencomWidget.trackEvent("class_booked", { classId: "yoga-101" });
 ```
-
-### Configuration Options
-
-| Option           | Type    | Default   | Description                    |
-| ---------------- | ------- | --------- | ------------------------------ |
-| `convexUrl`      | string  | required  | Your Convex deployment URL     |
-| `workspaceId`    | string  | required  | Your workspace ID              |
-| `trackPageViews` | boolean | false     | Automatically track page views |
-| `user`           | object  | undefined | Pre-identify user on init      |
 
 ---
 
-## Environment Variables Reference
+## Development
 
-### Convex Backend (packages/convex)
-
-Set these in your Convex Dashboard → Settings → Environment Variables:
-
-| Variable                                            | Required              | Description                                                                                                                         |
-| --------------------------------------------------- | --------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| `JWT_PRIVATE_KEY`                                   | Yes                   | Private key for Convex Auth JWT signing                                                                                             |
-| `JWKS`                                              | Yes                   | Public key set matching `JWT_PRIVATE_KEY` for Convex Auth JWT verification                                                          |
-| `AUTH_RESEND_KEY`                                   | For email             | Resend API key for OTP email sending                                                                                                |
-| `RESEND_API_KEY`                                    | For email             | Resend API key for transactional/campaign emails                                                                                    |
-| `EMAIL_FROM`                                        | For email             | Sender email address (e.g., `Opencom <noreply@yourdomain.com>`)                                                                     |
-| `RESEND_WEBHOOK_SECRET`                             | For email             | Secret for verifying Resend webhook signatures                                                                                      |
-| `EMAIL_WEBHOOK_INTERNAL_SECRET`                     | Recommended for email | Internal secret used to authorize webhook-only Convex email handlers                                                                |
-| `ENFORCE_WEBHOOK_SIGNATURES`                        | Recommended (`true`)  | Enforce webhook signature/internal-secret checks; set to `"false"` only for local debugging                                         |
-| `WEBHOOK_MAX_AGE_SECONDS`                           | Optional              | Max webhook signature age before rejection (replay window); defaults to `300`                                                       |
-| `OPENCOM_DEMO_BLOCKED_EMAIL_CAMPAIGN_WORKSPACE_IDS` | Optional (demo)       | Comma-separated workspace IDs where outbound email campaign sends are blocked by policy; transactional auth emails continue to work |
-| `ALLOW_TEST_DATA`                                   | For testing           | Set to `"true"` to enable test data seeding mutations                                                                               |
-| `TEST_ADMIN_SECRET`                                 | For testing           | Shared secret for `testAdmin.runTestMutation` gateway in test deployments                                                           |
-
-### Demo campaign guardrails (optional)
-
-To prevent accidental marketing-email blasts in hosted/demo environments while keeping signup/sign-in verification emails operational, set:
+The Docker stack is the recommended path. To run against Convex Cloud instead:
 
 ```bash
-OPENCOM_DEMO_BLOCKED_EMAIL_CAMPAIGN_WORKSPACE_IDS=workspace_id_1,workspace_id_2
+./scripts/setup.sh          # interactive: configures a Convex dev deployment + env files
 ```
 
-- The guard is enforced in `emailCampaigns.send`.
-- Leave this variable unset to allow campaign sends normally.
-- Transactional auth email flows are not blocked by this guard.
+Common commands:
 
-### Web App (apps/web)
-
-Set in `.env.local` or your hosting provider:
-
-| Variable                                  | Required | Description                   |
-| ----------------------------------------- | -------- | ----------------------------- |
-| `NEXT_PUBLIC_OPENCOM_DEFAULT_BACKEND_URL` | No       | Pre-fill backend URL on login |
-
-### Mobile App (apps/mobile)
-
-Set in `.env.local` or EAS secrets:
-
-| Variable                                  | Required | Description                   |
-| ----------------------------------------- | -------- | ----------------------------- |
-| `EXPO_PUBLIC_OPENCOM_DEFAULT_BACKEND_URL` | No       | Pre-fill backend URL on login |
-
-### Widget (apps/widget)
-
-For local development only:
-
-| Variable            | Required | Description                 |
-| ------------------- | -------- | --------------------------- |
-| `VITE_CONVEX_URL`   | Dev only | Convex URL for dev server   |
-| `VITE_WORKSPACE_ID` | Dev only | Workspace ID for dev server |
-
----
-
-## Connecting to a Self-Hosted Backend
-
-Opencom apps support connecting to any self-hosted Convex backend at runtime:
-
-**Web App:**
-
-- On the login page, enter your backend URL
-- The app validates the connection before proceeding
-
-**Mobile App:**
-
-- On first launch, tap "Connect to Backend"
-- Enter your Convex deployment URL
-- Recent backends are saved for quick switching
-
-**Backend URL Format:**
-
-- Use your Convex deployment URL: `https://your-project-123.convex.cloud`
-- HTTPS is required for security
-- The app validates the backend by fetching `/.well-known/opencom.json`
-
----
-
-## Workspace Settings
-
-### Signup Settings
-
-Workspace admins can configure signup restrictions:
-
-- **Invite Only** (default): Users must be invited to join
-- **Domain Allowlist**: Users with emails from specified domains can self-signup
-
-### Authentication Methods
-
-Configure which login methods are available:
-
-- **Password**: Traditional email/password login
-- **Email Code (OTP)**: Passwordless magic link authentication
+```bash
+pnpm dev                    # start all apps
+pnpm dev:web                # dashboard only
+pnpm dev:widget             # widget only
+pnpm build                  # build all apps
+pnpm lint
+pnpm typecheck
+pnpm format
+```
 
 ## Testing
 
-### Test Environment Setup
-
-Opencom uses a dedicated Convex test deployment to avoid polluting development or production data.
-
-**Setting up the test deployment:**
-
 ```bash
-# Create or reuse a dedicated test deployment, then configure Convex Auth
-pnpm --filter @opencom/convex exec convex dev --once --configure
-pnpm --filter @opencom/convex exec convex auth add
-
-# Create a local test env file from template
-cp .env.test.example .env.test
-
-# Update CONVEX_URL in packages/convex/.env.test
+pnpm test:convex            # backend tests
+pnpm test:unit              # Vitest
+pnpm test:e2e               # Playwright
+pnpm ci:check               # full gate: lint, typecheck, security gates, tests, build
 ```
 
-**Running tests:**
-
-```bash
-# Run all tests
-pnpm test
-
-# Run unit tests only (Vitest)
-pnpm test:unit
-
-# Run E2E tests only (Playwright)
-pnpm test:e2e
-
-# Run tests with coverage
-pnpm test:ci
-```
-
-See `docs/testing.md` for detailed testing guidelines.
-
-For the canonical OSS verification flow (targeted checks + CI-equivalent path), use:
-`docs/open-source/testing-and-verification.md`.
+E2E and seeding need `ALLOW_TEST_DATA=true` and a matching `TEST_ADMIN_SECRET` on the deployment.
 
 ---
 
-## Open-Source Release Operations
+## Deploying to a VPS
 
-Security and release operations guidance is centralized in:
-`docs/open-source/security-and-operations.md`.
+The bundled `docker-compose.yml` is a **development** setup (bind-mounted source, dev servers,
+http on localhost). For a server:
 
----
+- **TLS + public origins** — front the stack with a reverse proxy (Caddy/nginx/Traefik). Set the
+  backend's `CONVEX_CLOUD_ORIGIN`/`CONVEX_SITE_ORIGIN` to your public HTTPS URLs, and point the
+  apps' `NEXT_PUBLIC_CONVEX_URL`/`VITE_CONVEX_URL` at the backend's HTTPS URL.
+- **Production builds** — swap the `next dev`/`vite` commands for `next build` + `next start` and
+  a static widget build. With `NODE_ENV=production` the strict CSP applies automatically.
+- **CORS** — set `OPENCOM_PUBLIC_CORS_ORIGINS` to your real web origins.
+- **Secrets & persistence** — keep `CONVEX_INSTANCE_SECRET` stable and secret; use a managed
+  volume or Postgres (`POSTGRES_URL`) for `convex-data`.
 
-## React Native SDK Example
+### Local-dev carve-outs (production-safe)
 
-After running the setup script, the React Native SDK example is ready to use:
+Two behaviours exist only outside production, so a plain `http://localhost` backend works without
+manual steps. Both are gated — production keeps the strict defaults:
 
-```bash
-cd packages/react-native-sdk/example
-pnpm start
-```
-
-This will start Expo and allow you to run the example app on:
-
-- iOS Simulator (press `i`)
-- Android Emulator (press `a`)
-- Physical device via Expo Go
-
-The example app demonstrates all SDK features including chat, user identification, and push notifications.
-
----
-
-## Security Considerations for Self-Hosters
-
-When self-hosting Opencom, consider these security best practices:
-
-### Environment Variables
-
-- **Never commit secrets** - All `.env.local` files are gitignored
-- **Rotate secrets periodically** - Especially after team member departures
-- **Use strong API keys** - Generate secure random keys for production
-
-### Required Security Configuration
-
-| Variable                        | Purpose                                                                         | Where to Set                             |
-| ------------------------------- | ------------------------------------------------------------------------------- | ---------------------------------------- |
-| `RESEND_WEBHOOK_SECRET`         | Verify email webhook signatures                                                 | Convex Dashboard                         |
-| `EMAIL_WEBHOOK_INTERNAL_SECRET` | Restrict webhook-only email handlers to trusted internal callers                | Convex Dashboard                         |
-| `ENFORCE_WEBHOOK_SIGNATURES`    | Fail closed on webhook signature/internal-secret validation (`true` by default) | Convex Dashboard                         |
-| `WEBHOOK_MAX_AGE_SECONDS`       | Replay-window bound for webhook signatures (default: 300s)                      | Convex Dashboard                         |
-| `JWT_PRIVATE_KEY`               | Sign authentication/session tokens                                              | Convex Dashboard                         |
-| `JWKS`                          | Verify authentication/session tokens                                            | Convex Dashboard                         |
-| `CONVEX_SITE_URL`               | Auth issuer and JWKS endpoint used by Convex Auth provider                      | Convex-managed                           |
-| `ALLOW_TEST_DATA`               | Enable/disable test data mutations                                              | Convex Dashboard                         |
-| `TEST_ADMIN_SECRET`             | Secure test admin gateway for internal test mutations                           | Convex Dashboard (test deployments only) |
-
-### Authorization Model
-
-All mutations enforce authentication and permission checks:
-
-- **Workspace isolation** - Users can only access their workspace's data
-- **Role-based permissions** - Owner > Admin > Agent > Viewer
-- **Signed visitor sessions** - All visitor-facing endpoints require a cryptographic session token (`wst_…`) validated via `resolveVisitorFromSession()`; raw visitor IDs are never trusted alone
-- **Conversation authorization** - Dual-path: authenticated agents with permission OR visitors with valid session token who own the conversation
-- **Bot message restriction** - Bot/system messages restricted to internal callers only
-- **Test data protection** - All test data mutations gated behind `ALLOW_TEST_DATA` environment variable
-- **CORS hardening** - No wildcard `Access-Control-Allow-Origin`; workspace-level origin allowlists
-
-### Identity Verification (Production)
-
-For production deployments, enable HMAC identity verification:
-
-1. Go to Settings → Security in your dashboard
-2. Enable identity verification and copy the secret
-3. Generate user hashes server-side when identifying users
-4. Pass the hash to the widget to prevent impersonation
-
-### CORS Configuration
-
-- Configure allowed origins in Settings → Security for each workspace
-- The system validates widget origins against the workspace's allowlist
-- Requests without an `Origin` header do not receive CORS headers (no wildcard fallback)
-- All CORS responses include `Vary: Origin` for proper caching
-
-See [docs/security.md](docs/security.md) for detailed security documentation.
+- `packages/types/src/backendValidation.ts` accepts `http://` for **loopback hosts only** and maps
+  the API port to the HTTP-actions port (`3210` → `3211`). Remote backends still require HTTPS.
+- `apps/web/next.config.js` allows `http://localhost:*` / `ws://localhost:*` in the CSP
+  `connect-src` **only when `NODE_ENV !== "production"`**.
 
 ---
 
-## Error Codes Reference
+## Security
 
-Opencom uses standardized error codes for consistent error handling across all API endpoints:
-
-### Authentication Errors
-
-| Code                  | Message                   | Description                              |
-| --------------------- | ------------------------- | ---------------------------------------- |
-| `NOT_AUTHENTICATED`   | Authentication required   | User is not logged in                    |
-| `SESSION_EXPIRED`     | Session has expired       | JWT token has expired, re-login required |
-| `INVALID_CREDENTIALS` | Invalid email or password | Login failed due to wrong credentials    |
-
-### Authorization Errors
-
-| Code                   | Message                               | Description                                           |
-| ---------------------- | ------------------------------------- | ----------------------------------------------------- |
-| `NOT_AUTHORIZED`       | Not authorized to perform this action | User lacks required permissions                       |
-| `PERMISSION_DENIED`    | Permission denied                     | Specific permission check failed                      |
-| `NOT_WORKSPACE_MEMBER` | Not a member of this workspace        | User tried to access a workspace they don't belong to |
-
-### Resource Errors
-
-| Code             | Message                                | Description                      |
-| ---------------- | -------------------------------------- | -------------------------------- |
-| `NOT_FOUND`      | Resource not found                     | Requested entity doesn't exist   |
-| `ALREADY_EXISTS` | Resource already exists                | Attempted to create a duplicate  |
-| `CONFLICT`       | Operation conflicts with existing data | Concurrent modification conflict |
-
-### Validation Errors
-
-| Code                     | Message                   | Description                                |
-| ------------------------ | ------------------------- | ------------------------------------------ |
-| `INVALID_INPUT`          | Invalid input provided    | Request data failed validation             |
-| `MISSING_REQUIRED_FIELD` | Required field is missing | A required field was not provided          |
-| `INVALID_FORMAT`         | Invalid format            | Data format doesn't match expected pattern |
-
-### Rate Limiting
-
-| Code           | Message           | Description                        |
-| -------------- | ----------------- | ---------------------------------- |
-| `RATE_LIMITED` | Too many requests | Request was throttled, retry later |
-
-### Handling Errors in Your Code
-
-```javascript
-try {
-  await client.mutation(api.conversations.create, { ... });
-} catch (error) {
-  if (error.name === 'NOT_AUTHENTICATED') {
-    // Redirect to login
-  } else if (error.name === 'PERMISSION_DENIED') {
-    // Show permission error UI
-  } else if (error.name === 'NOT_FOUND') {
-    // Show 404 page
-  } else {
-    // Generic error handling
-  }
-}
-```
+- **Never commit secrets.** `.env` and `*.env.local` are gitignored. Rotate keys periodically.
+- **Workspace isolation** — every record is scoped by `workspaceId`; all mutations check auth.
+- **Roles** — Owner > Admin > Agent > Viewer.
+- **Signed visitor sessions** — visitor-facing endpoints require a session token (`wst_…`); raw
+  visitor IDs are never trusted alone.
+- **Bot messages** are restricted to internal callers, so Aya's identity can't be spoofed.
+- **CORS hardening** — no wildcard `Access-Control-Allow-Origin`; per-workspace origin allowlists.
+- **Identity verification** — enable HMAC verification in **Settings → Security** for production
+  and generate user hashes server-side to prevent impersonation.
+- **Webhooks** fail closed by default (`ENFORCE_WEBHOOK_SIGNATURES`), with a replay window set by
+  `WEBHOOK_MAX_AGE_SECONDS` (default 300s).
 
 ---
 
 ## Troubleshooting
 
-### Setup Script Issues
+**`convex deploy` fails with a version error**
+The Convex backend image must match the pinned CLI (`convex` in `package.json`). Pin
+`CONVEX_BACKEND_TAG`/`CONVEX_DASHBOARD_TAG` in `.env` to a compatible tag.
 
-**"Could not determine Convex deployment URL"**
+**Admin key generation fails**
+Generate one manually:
+`docker compose run --rm --entrypoint sh convex-backend -c 'cd /convex && ./generate_admin_key.sh'`
 
-- Rerun `./scripts/setup.sh --reconfigure` and complete the Convex CLI login/project-selection flow.
-- If you are debugging manually, run `pnpm --filter @opencom/convex exec convex dev --once --configure`.
+**"HTTPS is required" or "Could not connect" on the login screen**
+Hard-refresh once — a previous failure may be cached in localStorage. Confirm the backend is
+healthy (`curl http://localhost:3210/version`) and that discovery responds
+(`curl http://localhost:3211/.well-known/opencom.json`).
 
-**"npx convex login" hangs or fails**
+**Aya never replies**
+Check that the agent is enabled in Settings → AI Agent, that `AI_GATEWAY_API_KEY` is set on the
+deployment (`docker compose logs convex-deploy`), that the model id is valid for your provider,
+and that there is content for her to read (Articles/Snippets). Config errors surface in the AI
+Agent settings card.
 
-- Check your internet connection
-- Try `npx convex logout` then `npx convex login` again
+**Dependency changes not picked up**
+`docker compose down -v && docker compose up --build` — node_modules live in named volumes.
 
-**Permission denied running setup.sh**
+**Port already in use**
+Stop the conflicting process or remap the port in `docker-compose.yml`.
 
-- Run `chmod +x scripts/setup.sh` to make it executable
+---
 
-### Development Issues
+## License & attribution
 
-**"CONVEX_URL is not set"**
+Jeemcom is a derivative of [Opencom](https://github.com/opencom-org/opencom) and is licensed under
+the **GNU Affero General Public License v3.0**. See [LICENSE](LICENSE).
 
-- Run `./scripts/update-env.sh` to regenerate environment files
-- Or manually create `.env.local` files (see Environment Variables Reference)
-
-**Widget not connecting**
-
-- Verify `VITE_WORKSPACE_ID` in `apps/widget/.env.local` matches your workspace
-- Check browser console for CORS errors - add your origin in workspace settings
-
-**OTP emails not sending**
-
-- OTP requires `RESEND_API_KEY` in Convex environment variables
-- Use password authentication for initial setup (works without Resend)
-
-### Windows Users
-
-The setup script requires Bash. Options:
-
-- Use WSL (Windows Subsystem for Linux)
-- Use Git Bash
-- Follow the Manual Setup instructions instead
-
-## License
-
-GNU Affero General Public License v3.0 (AGPL-3.0). See [LICENSE](LICENSE).
-
-All contributions are subject to the [Contributor License Agreement](CLA.md).
+AGPL-3.0 is a copyleft license: if you run a modified version of this software as a network
+service, you must make the corresponding source available to its users.

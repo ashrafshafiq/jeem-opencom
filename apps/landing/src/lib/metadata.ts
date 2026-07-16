@@ -19,12 +19,12 @@ const DEFAULT_SOCIAL_IMAGE = {
   url: "/social/opencom-social-card.png",
   width: 1200,
   height: 630,
-  alt: "Opencom dashboard and inbox preview",
+  alt: "Jeemcom dashboard and inbox preview",
 } as const;
 
-const DEFAULT_TITLE = "Opencom - Open Source Customer Messaging";
+const DEFAULT_TITLE = "Jeemcom - Class Reminders & Support, powered by Aya";
 const DEFAULT_DESCRIPTION =
-  "The open-source Intercom alternative. Self-hosted customer messaging with live chat, product tours, tickets, surveys, campaigns, knowledge base, AI agent, and native SDKs.";
+  "Jeemcom keeps Jeem subscribers on track: automated class reminders over WhatsApp and SMS, with Aya — an AI assistant that answers questions and hands off to a human when needed.";
 
 type SocialImageInput = {
   url: string;
@@ -61,26 +61,26 @@ function resolveSocialImage(image?: SocialImageInput) {
 
 export const landingRootMetadata: Metadata = {
   metadataBase,
-  applicationName: "Opencom",
+  applicationName: "Jeemcom",
   title: DEFAULT_TITLE,
   description: DEFAULT_DESCRIPTION,
   keywords: [
-    "open source",
-    "intercom alternative",
+    "class reminders",
+    "whatsapp reminders",
+    "sms reminders",
+    "ai assistant",
     "customer messaging",
     "chat widget",
-    "self-hosted",
-    "product tours",
+    "appointment reminders",
     "knowledge base",
     "support tickets",
     "surveys",
     "campaigns",
-    "ai agent",
     "customer support",
   ],
-  authors: [{ name: "Opencom Team" }],
-  creator: "Opencom Team",
-  publisher: "Opencom",
+  authors: [{ name: "Jeem" }],
+  creator: "Jeem",
+  publisher: "Jeemcom",
   category: "technology",
   alternates: {
     canonical: "/",
@@ -110,7 +110,7 @@ export const landingRootMetadata: Metadata = {
     title: DEFAULT_TITLE,
     description: DEFAULT_DESCRIPTION,
     url: "/",
-    siteName: "Opencom",
+    siteName: "Jeemcom",
     locale: "en_US",
     type: "website",
     images: [DEFAULT_SOCIAL_IMAGE],
@@ -142,7 +142,7 @@ export function createLandingPageMetadata({
       title,
       description,
       url: canonicalPath,
-      siteName: "Opencom",
+      siteName: "Jeemcom",
       locale: "en_US",
       type: "website",
       images: [socialImage.openGraph],

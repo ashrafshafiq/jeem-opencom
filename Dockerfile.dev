@@ -1,0 +1,34 @@
+# Development image for the Opencom monorepo (web / landing / widget / convex deploy).
+#
+# This is a DEV image: source is bind-mounted at runtime (see docker-compose.yml) so
+# code changes hot-reload without a rebuild. We install dependencies at build time for
+# layer caching, and container-installed node_modules are kept out of the host's way via
+# named volumes in compose (so Linux-native binaries never collide with a host macOS/Windows
+# install). Rebuild the image after changing any package.json / the lockfile.
+FROM node:20-bookworm-slim
+
+# pnpm via corepack, pinned to the version in package.json ("packageManager": "pnpm@9.0.0").
+RUN corepack enable && corepack prepare pnpm@9 --activate
+
+WORKDIR /app
+
+# Copy only the manifests first so `pnpm install` is cached until dependencies change.
+# Every workspace package.json that appears in pnpm-lock.yaml must be present for
+# --frozen-lockfile to succeed. Native SDK dirs (packages/android-sdk, packages/ios-sdk)
+# have no package.json and are intentionally omitted.
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY apps/web/package.json ./apps/web/
+COPY apps/landing/package.json ./apps/landing/
+COPY apps/widget/package.json ./apps/widget/
+COPY apps/mobile/package.json ./apps/mobile/
+COPY packages/convex/package.json ./packages/convex/
+COPY packages/types/package.json ./packages/types/
+COPY packages/ui/package.json ./packages/ui/
+COPY packages/web-shared/package.json ./packages/web-shared/
+COPY packages/sdk-core/package.json ./packages/sdk-core/
+COPY packages/react-native-sdk/package.json ./packages/react-native-sdk/
+COPY packages/react-native-sdk/example/package.json ./packages/react-native-sdk/example/
+
+RUN pnpm install --frozen-lockfile
+
+# No CMD: docker-compose.yml supplies a per-service command (dev server or one-shot deploy).

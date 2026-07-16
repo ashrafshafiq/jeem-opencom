@@ -24,6 +24,7 @@ import {
   Shield,
   X,
 } from "lucide-react";
+import { BRAND_NAME } from "@opencom/ui";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   INBOX_CUE_PREFERENCES_UPDATED_EVENT,
@@ -177,7 +178,7 @@ export function AppSidebar({
           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
             <MessageSquareText className="h-5 w-5 text-white" />
           </div>
-          <span className="font-semibold text-lg">Opencom</span>
+          <span className="font-semibold text-lg">{BRAND_NAME}</span>
         </Link>
         {showCloseButton && (
           <button

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Menu } from "lucide-react";
+import { BRAND_NAME } from "@opencom/ui";
 import { useAuthOptional } from "@/contexts/AuthContext";
 import { useBackend } from "@/contexts/BackendContext";
 import { AppSidebar } from "./AppSidebar";
@@ -98,7 +99,7 @@ export function AppLayout({ children }: AppLayoutProps): React.JSX.Element | nul
             >
               <Menu className="h-4 w-4" />
             </button>
-            <span className="font-semibold">Opencom</span>
+            <span className="font-semibold">{BRAND_NAME}</span>
           </header>
         )}
         <main className="flex-1 overflow-auto">{children}</main>

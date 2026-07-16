@@ -5,9 +5,9 @@ import { CTA } from "@/components/landing/cta";
 import { createLandingPageMetadata } from "@/lib/metadata";
 
 export const metadata = createLandingPageMetadata({
-  title: "Opencom — The Open-Source Customer Messaging Engine",
+  title: "Jeemcom — Class Reminders & Support, powered by Aya",
   description:
-    "Self-host live chat, product tours, tickets, and AI agents without the vendor lock-in.",
+    "Automated class reminders over WhatsApp and SMS, with Aya — an AI assistant that answers questions and escalates to a human when needed.",
   path: "/",
 });
 

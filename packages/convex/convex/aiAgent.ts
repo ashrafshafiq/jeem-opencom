@@ -107,6 +107,7 @@ const aiResponseSourceValidator = v.object({
 
 const DEFAULT_AI_SETTINGS = {
   enabled: false,
+  agentName: "Aya",
   knowledgeSources: ["articles"] as KnowledgeSource[],
   confidenceThreshold: 0.6,
   personality: null,
@@ -238,6 +239,7 @@ function withAISettingDefaults(settings: Doc<"aiAgentSettings"> | null): {
   _creationTime?: number;
   workspaceId?: Id<"workspaces">;
   enabled: boolean;
+  agentName: string;
   knowledgeSources: KnowledgeSource[];
   confidenceThreshold: number;
   personality: string | null;
@@ -262,6 +264,7 @@ function withAISettingDefaults(settings: Doc<"aiAgentSettings"> | null): {
 
   return {
     ...settings,
+    agentName: settings.agentName ?? DEFAULT_AI_SETTINGS.agentName,
     knowledgeSources: settings.knowledgeSources as KnowledgeSource[],
     personality: settings.personality ?? null,
     handoffMessage: settings.handoffMessage ?? DEFAULT_AI_SETTINGS.handoffMessage,
@@ -350,6 +353,7 @@ export const getPublicSettings = query({
 
     return {
       enabled: normalized.enabled,
+      agentName: normalized.agentName,
       knowledgeSources: normalized.knowledgeSources,
       confidenceThreshold: normalized.confidenceThreshold,
       personality: normalized.personality,
@@ -377,6 +381,7 @@ export const updateSettings = authMutation({
   args: {
     workspaceId: v.id("workspaces"),
     enabled: v.optional(v.boolean()),
+    agentName: v.optional(v.string()),
     knowledgeSources: v.optional(v.array(knowledgeSourceValidator)),
     confidenceThreshold: v.optional(v.number()),
     personality: v.optional(v.string()),
@@ -410,6 +415,7 @@ export const updateSettings = authMutation({
         lastConfigError: undefined,
       };
       if (args.enabled !== undefined) updates.enabled = args.enabled;
+      if (args.agentName !== undefined) updates.agentName = args.agentName;
       if (args.knowledgeSources !== undefined) updates.knowledgeSources = args.knowledgeSources;
       if (args.confidenceThreshold !== undefined)
         updates.confidenceThreshold = args.confidenceThreshold;
@@ -430,6 +436,7 @@ export const updateSettings = authMutation({
     return await ctx.db.insert("aiAgentSettings", {
       workspaceId: args.workspaceId,
       enabled: args.enabled ?? false,
+      agentName: args.agentName ?? DEFAULT_AI_SETTINGS.agentName,
       knowledgeSources: args.knowledgeSources ?? ["articles"],
       confidenceThreshold: args.confidenceThreshold ?? 0.6,
       personality: args.personality,

@@ -9,6 +9,7 @@ import type { AiFeedback, AiResponseData, ConversationMessage } from "./types";
 interface ConversationMessageListProps {
   messages: ConversationMessage[] | undefined;
   aiSettingsEnabled: boolean;
+  agentName?: string;
   isAiMessage: (message: ConversationMessage) => boolean;
   getAiResponseData: (messageId: string) => AiResponseData | undefined;
   aiResponseFeedback: Record<string, AiFeedback>;
@@ -61,6 +62,7 @@ function renderAttachmentRow(attachment: NonNullable<ConversationMessage["attach
 export function ConversationMessageList({
   messages,
   aiSettingsEnabled,
+  agentName = "Aya",
   isAiMessage,
   getAiResponseData,
   aiResponseFeedback,
@@ -98,9 +100,9 @@ export function ConversationMessageList({
           {aiSettingsEnabled ? (
             <>
               <span className="opencom-ai-badge">
-                <Bot /> AI
+                <Bot /> {agentName}
               </span>
-              Hi! I&apos;m an AI assistant. How can I help you today?
+              Hi! I&apos;m {agentName}. How can I help you today?
             </>
           ) : (
             "Hi! How can we help you today?"
@@ -133,7 +135,7 @@ export function ConversationMessageList({
               >
                 {isAi && (
                   <span className="opencom-ai-badge">
-                    <Bot /> AI
+                    <Bot /> {agentName}
                   </span>
                 )}
                 {isHumanAgent && (
@@ -242,7 +244,7 @@ export function ConversationMessageList({
       {isAiTyping && (
         <div className="opencom-message opencom-message-agent opencom-message-ai opencom-typing">
           <span className="opencom-ai-badge">
-            <Bot /> AI
+            <Bot /> {agentName}
           </span>
           <span className="opencom-typing-dots">
             <span>.</span>

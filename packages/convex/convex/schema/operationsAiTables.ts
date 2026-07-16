@@ -6,6 +6,9 @@ export const operationsAiTables = {
   aiAgentSettings: defineTable({
     workspaceId: v.id("workspaces"),
     enabled: v.boolean(),
+    // Display name / persona of the AI agent (e.g. "Aya"). Shown in the widget and inbox
+    // and used in the system prompt. Falls back to the default when unset.
+    agentName: v.optional(v.string()),
     knowledgeSources: v.array(
       v.union(v.literal("articles"), v.literal("internalArticles"), v.literal("snippets"))
     ),

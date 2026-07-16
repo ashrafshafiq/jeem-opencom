@@ -28,7 +28,7 @@ export function Navbar() {
           <div className="flex lg:flex-1">
             <Link href="/" className="-m-1.5 p-1.5 flex items-center gap-2">
               <MessageCircle className="h-8 w-8 text-primary" />
-              <span className="text-xl font-bold">Opencom</span>
+              <span className="text-xl font-bold">Jeemcom</span>
               <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
                 Alpha
               </span>
@@ -94,7 +94,7 @@ export function Navbar() {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <MessageCircle className="h-8 w-8 text-primary" />
-                <span className="text-xl font-bold">Opencom</span>
+                <span className="text-xl font-bold">Jeemcom</span>
               </Link>
               <button
                 type="button"

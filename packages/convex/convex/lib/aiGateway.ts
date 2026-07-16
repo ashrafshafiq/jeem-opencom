@@ -2,6 +2,7 @@ import { createOpenAI } from "@ai-sdk/openai";
 
 const DEFAULT_OPENAI_BASE_URL = "https://api.openai.com/v1";
 const DEFAULT_VERCEL_AI_GATEWAY_BASE_URL = "https://ai-gateway.vercel.sh/v1";
+const DEFAULT_OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1";
 const GENERIC_PROVIDER_LABEL = "gateway";
 
 function sanitizeProviderLabel(value: string): string {
@@ -20,9 +21,14 @@ export function getAIBaseURL(apiKey = getAIGatewayApiKey()): string {
     return configuredBaseURL.replace(/\/+$/, "");
   }
 
-  return apiKey?.startsWith("vck_")
-    ? DEFAULT_VERCEL_AI_GATEWAY_BASE_URL
-    : DEFAULT_OPENAI_BASE_URL;
+  if (apiKey?.startsWith("vck_")) {
+    return DEFAULT_VERCEL_AI_GATEWAY_BASE_URL;
+  }
+  // OpenRouter keys are prefixed with `sk-or-`.
+  if (apiKey?.startsWith("sk-or-")) {
+    return DEFAULT_OPENROUTER_BASE_URL;
+  }
+  return DEFAULT_OPENAI_BASE_URL;
 }
 
 export function getAIGatewayProviderLabel(baseURL = getAIBaseURL()): string {

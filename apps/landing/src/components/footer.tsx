@@ -40,7 +40,7 @@ export function Footer() {
           <div className="col-span-2 lg:col-span-1">
             <Link href="/" className="flex items-center gap-2">
               <MessageCircle className="h-6 w-6 text-primary" />
-              <span className="text-lg font-bold">Opencom</span>
+              <span className="text-lg font-bold">Jeemcom</span>
             </Link>
             <p className="mt-4 text-sm text-muted-foreground">
               Fully open source, AGPLv3 licensed, and currently free to use. Try hosted onboarding
@@ -143,7 +143,7 @@ export function Footer() {
 
         <div className="mt-12 border-t pt-8">
           <p className="text-center text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} Opencom. Open source under the GNU AGPLv3.
+            &copy; {new Date().getFullYear()} Jeemcom. Open source under the GNU AGPLv3.
           </p>
         </div>
       </div>

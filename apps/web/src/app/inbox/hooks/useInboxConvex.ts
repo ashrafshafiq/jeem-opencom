@@ -35,6 +35,7 @@ type ConversationsForInboxArgs = {
 
 type AiSettingsRecord = {
   suggestionsEnabled?: boolean;
+  agentName?: string;
 } | null;
 
 type InboxConversationsResult = {

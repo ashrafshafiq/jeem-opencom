@@ -1,0 +1,168 @@
+# Full local Opencom stack, including a self-hosted Convex backend.
+#
+#   cp .env.docker.example .env   # then set CONVEX_INSTANCE_SECRET
+#   docker compose up --build
+#
+# Services & URLs:
+#   web        http://localhost:3000   (Next.js dashboard)
+#   landing    http://localhost:4000   (Next.js marketing site)
+#   widget     http://localhost:5173   (Vite widget dev server)
+#   dashboard  http://localhost:6791   (Convex data/functions browser)
+#   backend    http://localhost:3210   (Convex API/WebSocket) + :3211 (HTTP actions)
+#
+# The browser (on the host) talks to Convex at http://localhost:3210 via the published
+# port, while the in-network deploy job talks to http://convex-backend:3210. See
+# NEXT_PUBLIC_CONVEX_URL / VITE_CONVEX_URL below vs. CONVEX_SELF_HOSTED_URL in convex-deploy.
+
+# Shared bind-mount + node_modules overlay volumes. The repo is mounted for hot reload; the
+# named volumes shadow the host's node_modules so Linux-native deps installed in the image
+# are used instead of a host (macOS/Windows) install. Reset with `docker compose down -v`
+# after changing dependencies.
+x-app-volumes: &app-volumes
+  - .:/app
+  - nm_root:/app/node_modules
+  - nm_web:/app/apps/web/node_modules
+  - nm_landing:/app/apps/landing/node_modules
+  - nm_widget:/app/apps/widget/node_modules
+  - nm_convex:/app/packages/convex/node_modules
+  - nm_types:/app/packages/types/node_modules
+  - nm_ui:/app/packages/ui/node_modules
+  - nm_web_shared:/app/packages/web-shared/node_modules
+  - nm_sdk_core:/app/packages/sdk-core/node_modules
+
+x-app-build: &app-build
+  context: .
+  dockerfile: Dockerfile.dev
+
+services:
+  # ---- Self-hosted Convex backend -------------------------------------------------
+  convex-backend:
+    image: ghcr.io/get-convex/convex-backend:${CONVEX_BACKEND_TAG:-latest}
+    ports:
+      - "3210:3210" # API + WebSocket (clients / CLI)
+      - "3211:3211" # HTTP actions ("site" origin)
+    environment:
+      INSTANCE_NAME: opencom
+      INSTANCE_SECRET: ${CONVEX_INSTANCE_SECRET:?set CONVEX_INSTANCE_SECRET in .env (see .env.docker.example)}
+      # Origins the backend advertises must be reachable from the host browser.
+      CONVEX_CLOUD_ORIGIN: http://localhost:3210
+      CONVEX_SITE_ORIGIN: http://localhost:3211
+      DISABLE_BEACON: "true"
+      RUST_LOG: info
+    volumes:
+      - convex-data:/convex/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3210/version"]
+      interval: 5s
+      start_period: 10s
+      timeout: 5s
+      retries: 20
+
+  # ---- Convex data/functions dashboard --------------------------------------------
+  convex-dashboard:
+    image: ghcr.io/get-convex/convex-dashboard:${CONVEX_DASHBOARD_TAG:-latest}
+    ports:
+      - "6791:6791"
+    environment:
+      NEXT_PUBLIC_DEPLOYMENT_URL: http://localhost:3210
+    depends_on:
+      convex-backend:
+        condition: service_healthy
+
+  # ---- One-shot: derive the admin key from INSTANCE_NAME + INSTANCE_SECRET ----------
+  # Pure cryptographic derivation (no DB / running backend needed); writes the key to the
+  # shared volume for the deploy job. Uses the same image so the derivation matches.
+  convex-admin-key:
+    image: ghcr.io/get-convex/convex-backend:${CONVEX_BACKEND_TAG:-latest}
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - 'cd /convex && ./generate_admin_key.sh | tail -n 1 > /shared/admin_key && echo "admin key written to /shared/admin_key"'
+    environment:
+      INSTANCE_NAME: opencom
+      INSTANCE_SECRET: ${CONVEX_INSTANCE_SECRET:?set CONVEX_INSTANCE_SECRET in .env (see .env.docker.example)}
+    volumes:
+      - convex-admin:/shared
+
+  # ---- One-shot: set auth env + push functions to the backend ----------------------
+  convex-deploy:
+    build: *app-build
+    entrypoint: ["bash"]
+    command: ["scripts/docker/deploy-convex.sh"]
+    environment:
+      CONVEX_SELF_HOSTED_URL: http://convex-backend:3210
+      SITE_URL: http://localhost:3000
+      # Optional integration secrets (blank unless set in .env); forwarded to the deployment.
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      AUTH_RESEND_KEY: ${AUTH_RESEND_KEY:-}
+      EMAIL_FROM: ${EMAIL_FROM:-}
+      RESEND_WEBHOOK_SECRET: ${RESEND_WEBHOOK_SECRET:-}
+      AI_GATEWAY_API_KEY: ${AI_GATEWAY_API_KEY:-}
+      AI_GATEWAY_BASE_URL: ${AI_GATEWAY_BASE_URL:-}
+    volumes:
+      - .:/app
+      - convex-admin:/shared
+      - nm_root:/app/node_modules
+      - nm_convex:/app/packages/convex/node_modules
+      - nm_types:/app/packages/types/node_modules
+    depends_on:
+      convex-backend:
+        condition: service_healthy
+      convex-admin-key:
+        condition: service_completed_successfully
+
+  # ---- Web dashboard (Next.js) ----------------------------------------------------
+  web:
+    build: *app-build
+    command: ["pnpm", "--filter", "@opencom/web", "exec", "next", "dev", "-H", "0.0.0.0", "-p", "3000"]
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_CONVEX_URL: http://localhost:3210
+      NEXT_PUBLIC_OPENCOM_DEFAULT_BACKEND_URL: http://localhost:3210
+      NEXT_PUBLIC_TEST_WORKSPACE_ID: ${OPENCOM_WORKSPACE_ID:-}
+    volumes: *app-volumes
+    depends_on:
+      convex-deploy:
+        condition: service_completed_successfully
+
+  # ---- Landing site (Next.js) -----------------------------------------------------
+  landing:
+    build: *app-build
+    command: ["pnpm", "--filter", "@opencom/landing", "exec", "next", "dev", "-H", "0.0.0.0", "-p", "4000"]
+    ports:
+      - "4000:4000"
+    environment:
+      NEXT_PUBLIC_CONVEX_URL: http://localhost:3210
+      NEXT_PUBLIC_OPENCOM_WEB_APP_URL: http://localhost:3000
+      NEXT_PUBLIC_WORKSPACE_ID: ${OPENCOM_WORKSPACE_ID:-}
+    volumes: *app-volumes
+    depends_on:
+      convex-deploy:
+        condition: service_completed_successfully
+
+  # ---- Widget dev server (Vite) ---------------------------------------------------
+  widget:
+    build: *app-build
+    command: ["pnpm", "--filter", "@opencom/widget", "exec", "vite", "--host", "0.0.0.0", "--port", "5173"]
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_CONVEX_URL: http://localhost:3210
+      VITE_WORKSPACE_ID: ${OPENCOM_WORKSPACE_ID:-}
+    volumes: *app-volumes
+    depends_on:
+      convex-deploy:
+        condition: service_completed_successfully
+
+volumes:
+  convex-data:
+  convex-admin:
+  nm_root:
+  nm_web:
+  nm_landing:
+  nm_widget:
+  nm_convex:
+  nm_types:
+  nm_ui:
+  nm_web_shared:
+  nm_sdk_core:

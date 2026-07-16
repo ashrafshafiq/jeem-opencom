@@ -445,7 +445,7 @@ function TooltipsContent() {
               </div>
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
                 <p className="text-sm text-amber-800">
-                  <strong>Note:</strong> Make sure the Opencom widget is installed on this page for
+                  <strong>Note:</strong> Make sure the Jeemcom widget is installed on this page for
                   the visual picker to work.
                 </p>
               </div>

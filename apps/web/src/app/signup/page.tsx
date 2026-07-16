@@ -242,7 +242,7 @@ function SignupForm() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl">Opencom</CardTitle>
+        <CardTitle className="text-2xl">Jeemcom</CardTitle>
         <CardDescription>Create your account</CardDescription>
         {hasPassword && hasOtp ? (
           <div className="grid grid-cols-2 gap-2 mt-2">

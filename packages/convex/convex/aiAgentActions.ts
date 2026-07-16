@@ -5,7 +5,7 @@ import { v } from "convex/values";
 import type { Id } from "./_generated/dataModel";
 import { action } from "./_generated/server";
 import { generateText } from "ai";
-import { createAIClient, getAIGatewayProviderLabel } from "./lib/aiGateway";
+import { createAIClient, getAIGatewayProviderLabel, getAIBaseURL } from "./lib/aiGateway";
 
 type AIConfigurationDiagnostic = {
   code: string;
@@ -333,8 +333,13 @@ const truncateDiagnosticMessage = (value: string): string =>
     : value;
 
 // Build system prompt for AI Agent
-const buildSystemPrompt = (personality: string | null, knowledgeContext: string): string => {
-  const basePrompt = `You are a helpful customer support AI assistant. Your role is to answer customer questions accurately and helpfully using the provided knowledge base content.
+const buildSystemPrompt = (
+  agentName: string,
+  personality: string | null,
+  knowledgeContext: string
+): string => {
+  const safeName = agentName?.trim() || "Aya";
+  const basePrompt = `You are ${safeName}, a helpful support assistant. Always refer to yourself as ${safeName} if asked your name. Your role is to answer customer questions accurately and helpfully using the provided knowledge base content.
 
 IMPORTANT GUIDELINES:
 1. Only answer questions using the information provided in the KNOWLEDGE CONTEXT below
@@ -615,6 +620,7 @@ export const generateResponse = action({
 
     // Build system prompt
     const systemPrompt = buildSystemPrompt(
+      settings.agentName ?? "Aya",
       settings.personality ?? null,
       knowledgeContext || "No relevant knowledge found."
     );
@@ -726,6 +732,18 @@ export const generateResponse = action({
     };
 
     const aiClient = createAIClient();
+    // OpenAI's own API expects a bare model id (e.g. "gpt-5-nano"), but OpenAI-compatible
+    // gateways such as OpenRouter and the Vercel AI Gateway expect the full vendor-prefixed
+    // id (e.g. "anthropic/claude-3.5-sonnet"). Send the full `settings.model` unless we are
+    // talking to api.openai.com directly.
+    const isOpenAIDirect = (() => {
+      try {
+        return /(^|\.)openai\.com$/.test(new URL(getAIBaseURL()).hostname);
+      } catch {
+        return true;
+      }
+    })();
+    const requestModelId = isOpenAIDirect ? model : settings.model.trim();
     const messages: Array<{ role: "user" | "assistant"; content: string }> = [
       ...(args.conversationHistory || []),
       { role: "user" as const, content: args.query },
@@ -743,7 +761,7 @@ export const generateResponse = action({
         : DEFAULT_MAX_OUTPUT_TOKENS;
 
       const result = await generateText({
-        model: aiClient(model),
+        model: aiClient(requestModelId),
         system: `${systemPrompt}${retrySuffix}`,
         messages,
         maxOutputTokens,

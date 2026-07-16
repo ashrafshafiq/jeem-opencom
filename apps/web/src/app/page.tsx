@@ -3,7 +3,15 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from "@opencom/ui";
+import {
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  BRAND_NAME,
+} from "@opencom/ui";
 import { MessageSquare, Users, BookOpen, Sparkles } from "lucide-react";
 import { useAuthOptional } from "@/contexts/AuthContext";
 
@@ -37,7 +45,7 @@ export default function Home() {
     <main className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-16">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold tracking-tight mb-4">Welcome to Opencom</h1>
+          <h1 className="text-4xl font-bold tracking-tight mb-4">Welcome to {BRAND_NAME}</h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Open-source customer messaging platform. Chat with your customers, create product tours,
             and build a knowledge base.
