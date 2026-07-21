@@ -141,6 +141,9 @@ export const boot = mutation({
     currentUrl: v.optional(v.string()),
     customAttributes: v.optional(customAttributesValidator),
     existingVisitorId: v.optional(v.id("visitors")),
+    // Proof of ownership for `existingVisitorId`: a caller may only rebind a new session to
+    // a pre-existing visitor if it presents that visitor's current, valid session token.
+    sessionToken: v.optional(v.string()),
     origin: v.optional(v.string()),
     clientType: v.optional(v.string()),
     clientVersion: v.optional(v.string()),
@@ -176,25 +179,44 @@ export const boot = mutation({
       return (await ctx.db.get(candidate._id)) as Doc<"visitors"> | null;
     };
 
-    // Check persisted visitor ID first
-    if (args.existingVisitorId) {
-      const persisted = await ctx.db.get(args.existingVisitorId);
-      if (persisted && persisted.workspaceId === args.workspaceId) {
-        await ctx.db.patch(persisted._id, {
-          sessionId: args.sessionId,
-          lastSeenAt: now,
-          ...(args.email && { email: args.email }),
-          ...(args.name && { name: args.name }),
-          ...(args.externalUserId && { externalUserId: args.externalUserId }),
-          ...(args.location && { location: args.location }),
-          ...(args.device && { device: args.device }),
-          ...(args.referrer && { referrer: args.referrer }),
-          ...(args.currentUrl && { currentUrl: args.currentUrl }),
-          ...(args.customAttributes && { customAttributes: args.customAttributes }),
+    // Rebind to a persisted visitor ID — but only when the caller proves it owns that
+    // visitor by presenting the visitor's current, valid session token. A visitorId is a
+    // NON-SECRET identifier (it appears in message payloads, the agent inbox, network
+    // traffic, and localStorage), so it must never authenticate a session on its own:
+    // trusting a bare existingVisitorId let anyone who learned a victim's visitorId mint a
+    // session as them (session forgery). Without valid proof we ignore existingVisitorId and
+    // fall through to sessionId/email matching below (the normal returning-visitor path).
+    if (args.existingVisitorId && args.sessionToken) {
+      let ownsExistingVisitor = false;
+      try {
+        const resolved = await resolveVisitorFromSession(ctx, {
+          sessionToken: args.sessionToken,
+          workspaceId: args.workspaceId,
         });
-        visitor = await ensureReadableId(
-          (await ctx.db.get(persisted._id)) as Doc<"visitors"> | null
-        );
+        ownsExistingVisitor = resolved.visitorId === args.existingVisitorId;
+      } catch {
+        ownsExistingVisitor = false;
+      }
+
+      if (ownsExistingVisitor) {
+        const persisted = await ctx.db.get(args.existingVisitorId);
+        if (persisted && persisted.workspaceId === args.workspaceId) {
+          await ctx.db.patch(persisted._id, {
+            sessionId: args.sessionId,
+            lastSeenAt: now,
+            ...(args.email && { email: args.email }),
+            ...(args.name && { name: args.name }),
+            ...(args.externalUserId && { externalUserId: args.externalUserId }),
+            ...(args.location && { location: args.location }),
+            ...(args.device && { device: args.device }),
+            ...(args.referrer && { referrer: args.referrer }),
+            ...(args.currentUrl && { currentUrl: args.currentUrl }),
+            ...(args.customAttributes && { customAttributes: args.customAttributes }),
+          });
+          visitor = await ensureReadableId(
+            (await ctx.db.get(persisted._id)) as Doc<"visitors"> | null
+          );
+        }
       }
     }
 
